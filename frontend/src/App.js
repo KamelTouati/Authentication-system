@@ -7,6 +7,8 @@ import {
   Signup,
   ResetPassword,
   ResetPasswordConfirm,
+  Google, 
+  Facebook
 } from "./containers";
 
 import Layout from "./hocs/Layout";
@@ -29,6 +31,8 @@ export default function App() {
               element={<ResetPasswordConfirm />}
             />
             <Route path="/activate/:uid/:token" exact element={<Activate />} />
+            <Route path="/google" exact element={<Google />} />
+            <Route path="/facebook" exact element={<Facebook />} />
           </Routes>
         </Layout>
       </Router>
