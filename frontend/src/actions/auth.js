@@ -17,10 +17,39 @@ import {
   ACTIVATION_FAIL,
   GOOGLE_AUTH_SUCCESS,
   GOOGLE_AUTH_FAIL,
-  FACEBOOK_AUTH_SUCCESS,
-  FACEBOOK_AUTH_FAIL,
   LOGOUT,
 } from "./types";
+
+export const login = (email, password) => async (dispatch) => {
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  };
+
+  const body = JSON.stringify({ email, password });
+  // console.log("email: " + email + " password: " + password)
+  try {
+    const res = await axios.post(
+      `${process.env.REACT_APP_API_URL}/auth/jwt/create/`,
+      body,
+      config
+    );
+    // console.log('res.data:', res.data);
+    dispatch({
+      type: LOGIN_SUCCESS,
+      payload: res.data,
+    });
+
+    dispatch(load_user());
+  } catch (err) {
+    // console.log("there is no data to return");
+    dispatch({
+      type: LOGIN_FAIL,
+    });
+  }
+};
 
 
 export const load_user = () => async (dispatch) => {
@@ -94,47 +123,6 @@ export const googleAuthenticate = (state, code) => async (dispatch) => {
     }
   }
 };
-
-export const facebookAuthenticate = (state, code) => async (dispatch) => {
-  if (state && code && !localStorage.getItem("access")) {
-    const config = {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    };
-
-    const details = {
-      state: state,
-      code: code,
-    };
-
-    const formBody = Object.keys(details)
-      .map(
-        (key) =>
-          encodeURIComponent(key) + "=" + encodeURIComponent(details[key])
-      )
-      .join("&");
-
-    try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/auth/o/facebook/?${formBody}`,
-        config
-      );
-
-      dispatch({
-        type: FACEBOOK_AUTH_SUCCESS,
-        payload: res.data,
-      });
-
-      dispatch(load_user());
-    } catch (err) {
-      dispatch({
-        type: FACEBOOK_AUTH_FAIL,
-      });
-    }
-  }
-};
-
 export const checkAuthenticated = () => async (dispatch) => {
   if (localStorage.getItem("access")) {
     const config = {
@@ -173,34 +161,6 @@ export const checkAuthenticated = () => async (dispatch) => {
     });
   }
 };
-
-export const login = (email, password) => async (dispatch) => {
-  const config = {
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    },
-  };
-
-  const body = JSON.stringify({ email, password });
-  // console.log("email: " + email + " password: " + password)
-  try {
-    const res = await axios.post(`${process.env.REACT_APP_API_URL}/auth/jwt/create/`, body, config);
-    // console.log('res.data:', res.data);
-    dispatch({
-        type: LOGIN_SUCCESS,
-        payload: res.data
-    });
-
-    dispatch(load_user());
-  } catch (err) {
-    // console.log("there is no data to return");
-    dispatch({
-      type: LOGIN_FAIL,
-    });
-  }
-};
-
 export const signup =
   (first_name, last_name, email, password, re_password) => async (dispatch) => {
     const config = {
